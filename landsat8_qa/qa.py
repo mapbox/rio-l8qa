@@ -49,32 +49,32 @@ def fill_qa(arr):
 qa_vars = {
     'clouds': cloud_qa,
     'cirrus': cirrus_qa,
-    'cloud_shadow': cloud_shadow_qa,
+    'cloudShadow': cloud_shadow_qa,
     'water': water_qa,
-    'snow_ice': snow_ice_qa,
+    'snowIce': snow_ice_qa,
     'terrain': terrain_qa,
-    'dropped_frame': dropped_frame_qa,
+    'droppedFrame': dropped_frame_qa,
     'fill': fill_qa
 }
 
 
-binary_vars = ('terrain', 'dropped_frame', 'fill')
+binary_vars = ('terrain', 'droppedFrame', 'fill')
 
 def lookup(name, val):
     if name in binary_vars:
         if val == 0:
-            return "No"
+            return "no"
         else:
-            return "Yes"
+            return "yes"
     else:
         if val == 0:
-            return "Not Determined"
+            return "notDetermined"
         elif val == 1:
-            return "No"
+            return "no"
         elif val == 2:
-            return "Maybe"
+            return "maybe"
         elif val == 3:
-            return "Yes"
+            return "yes"
 
 
 def summary_stats(arr, basename=None, outdir=None, profile=None):
