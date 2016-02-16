@@ -41,11 +41,11 @@ $ rio l8qa LC81100752015319LGN00_BQA.TIF
     "yes": 0.174949,
     "no": 0.526757
   },
-  "snow_ice": {
+  "snowIce": {
     "notDetermined": 1.0,
     "yes": 0.0
   },
-  "cloud_shadow": {
+  "cloudShadow": {
     "notDetermined": 1.0
   },
   "terrain": {
@@ -55,7 +55,7 @@ $ rio l8qa LC81100752015319LGN00_BQA.TIF
     "maybe": 8.2e-05,
     "notDetermined": 0.999918
   },
-  "dropped_frame": {
+  "droppedFrame": {
     "no": 1.0
   },
   "cirrus": {
