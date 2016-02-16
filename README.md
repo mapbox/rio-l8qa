@@ -36,36 +36,36 @@ Get summary stats, representing proportion of the scene
 $ rio l8qa LC81100752015319LGN00_BQA.TIF
 {
   "clouds": {
-    "Maybe": 0.00238,
-    "Not Determined": 0.295914,
-    "Yes": 0.174949,
-    "No": 0.526757
+    "maybe": 0.00238,
+    "notDetermined": 0.295914,
+    "yes": 0.174949,
+    "no": 0.526757
   },
   "snow_ice": {
-    "Not Determined": 1.0,
-    "Yes": 0.0
+    "notDetermined": 1.0,
+    "yes": 0.0
   },
   "cloud_shadow": {
-    "Not Determined": 1.0
+    "notDetermined": 1.0
   },
   "terrain": {
-    "No": 1.0
+    "no": 1.0
   },
   "water": {
-    "Maybe": 8.2e-05,
-    "Not Determined": 0.999918
+    "maybe": 8.2e-05,
+    "notDetermined": 0.999918
   },
   "dropped_frame": {
-    "No": 1.0
+    "no": 1.0
   },
   "cirrus": {
-    "Not Determined": 0.295914,
-    "Yes": 0.245638,
-    "No": 0.458448
+    "notDetermined": 0.295914,
+    "yes": 0.245638,
+    "no": 0.458448
   },
   "fill": {
-    "Yes": 0.295914,
-    "No": 0.704086
+    "yes": 0.295914,
+    "no": 0.704086
   }
 }
 ```
