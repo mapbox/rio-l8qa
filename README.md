@@ -33,7 +33,7 @@ pip install git+https://github.com/mapbox/landsat8-qa.git@master#egg=landsat8-qa
 
 Get summary stats, representing proportion of the scene
 ```
-$ rio l8qa LC81100752015319LGN00_BQA.TIF
+$ rio l8qa --stats LC81100752015319LGN00_BQA.TIF
 {
   "clouds": {
     "maybe": 0.00238,
@@ -72,7 +72,7 @@ $ rio l8qa LC81100752015319LGN00_BQA.TIF
 
 Optionally, you can also output tifs for each QA topic to a directory
 ```
-$ rio l8qa -o /tmp/qa LC81100752015319LGN00_BQA.TIF
+$ rio l8qa --outdir /tmp/qa LC81100752015319LGN00_BQA.TIF
 ...
 QA variables written as uint8 tifs to /tmp/l8qa
 
@@ -85,4 +85,9 @@ LC81100752015319LGN00_fill.TIF
 LC81100752015319LGN00_snow_ice.TIF
 LC81100752015319LGN00_terrain.TIF
 LC81100752015319LGN00_water.TIF
+```
+
+Or just a uint8 0-255 cloud mask, suitable for use as an alpha band in an RGBA geotif
+```
+$ rio l8qa --cloudmask clouds_plus_mask.tif LC81100752015319LGN00_BQA.TIF
 ```

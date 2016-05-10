@@ -77,11 +77,31 @@ def lookup(name, val):
             return "yes"
 
 
-def summary_stats(arr, basename=None, outdir=None, profile=None):
+def write_cloud_mask(arr, profile, cloudmask, threshold=2):
+    """
+    writes the cloud+alpha mask as single-band uint8 tiff
+    suitable for stacking as an alpha band
+    threshold defaults to 2; only 2 and above are considered clouds
+    """
+    func = qa_vars['clouds']
+    data = func(arr)
+    profile.update(dtype='uint8')
+    profile.update(transform=profile['affine'])
+    with rasterio.open(cloudmask, 'w', **profile) as dest:
+        clouds = (data >= threshold)
+        nodata = (data == 0)
+        yesdata = ((clouds + nodata) == 0)
+        data = (yesdata * 255).astype('uint8')
+        dest.write(data, 1)
+
+
+def summary_stats(arr, basename=None, outdir=None, profile=None, cloudmask=None):
     """Returns summary stats for QA variables
     Input is a 16bit 2D array from a Landasat 8 band
 
-    Optional side effect: specify an outdir to write QA variables as uint8 tifs
+    Optional side effects:
+        write QA variables as uint8 tifs to outdir
+        write binary clouds as uint8 0/255 to cloudmask
     """
     stats = {}
     size = arr.size
