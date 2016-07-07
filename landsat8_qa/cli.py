@@ -19,6 +19,9 @@ def main(qatif, stats, outdir, cloudmask):
         raise click.UsageError(
             "Specify --stats, --cloudmask MASK, or --outdir DIR")
 
+    if outdir:
+        stats = True
+
     with rasterio.open(qatif) as src:
         arr = src.read(1)
         profile = src.profile

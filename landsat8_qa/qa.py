@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import rasterio
+from rasterio.transform import guard_transform
 
 
 def _capture_bits(arr, b1, b2):
@@ -86,7 +87,7 @@ def write_cloud_mask(arr, profile, cloudmask, threshold=2):
     func = qa_vars['clouds']
     data = func(arr)
     profile.update(dtype='uint8')
-    profile.update(transform=profile['affine'])
+    profile.update(transform=guard_transform(profile['transform']))
     with rasterio.open(cloudmask, 'w', **profile) as dest:
         clouds = (data >= threshold)
         nodata = (data == 0)
