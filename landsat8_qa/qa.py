@@ -1,3 +1,13 @@
+"""
+QA files for Landsat 8 OLI/TIRS Collection 1 Quality Band
+
+https://landsat.usgs.gov/sites/default/files/images/C1-L4-5-7-8_QA_attributeTables.JPG
+
+***********
+* WARNING *
+***********
+This will not work with the previous L8 pre-Collection qa bands. See qa_L8.py instead.
+"""
 import os
 import numpy as np
 import rasterio
@@ -8,65 +18,104 @@ def _capture_bits(arr, b1, b2):
     width_int = int((b1 - b2 + 1) * "1", 2)
     return ((arr >> b2) & width_int).astype('uint8')
 
-# 0 = not determined
-# 1 = no
-# 2 = maybe
-# 3 = yes
-
-def cloud_qa(arr):
-    return _capture_bits(arr, 15, 14)
-
-
-def cirrus_qa(arr):
-    return _capture_bits(arr, 13, 12)
-
-
-def snow_ice_qa(arr):
-    return _capture_bits(arr, 11, 10)
-
-
-def cloud_shadow_qa(arr):
-    return _capture_bits(arr, 7, 6)
-
-
-def water_qa(arr):
-    return _capture_bits(arr, 5, 4)
-
-
-# 1 bit qa bands: 0 = no, 1=yes
-
-def terrain_qa(arr):
-    return _capture_bits(arr, 2, 2)
-
-
-def dropped_frame_qa(arr):
-    return _capture_bits(arr, 1, 1)
-
 
 def fill_qa(arr):
+    """
+    0 = No, this condition does not exist
+    1 = Yes, this condition exists
+    """
     return _capture_bits(arr, 0, 0)
 
 
+def terrain_qa(arr):
+    """
+    0 = No, this condition does not exist
+    1 = Yes, this condition exists
+    """
+    return _capture_bits(arr, 1, 1)
+
+
+def radiometric_qa(arr):
+    """
+    For radiometric saturation bits (2-3), read from left to right
+    represent how many bands contain saturation:
+
+    00 - No bands contain saturation
+    01 - 1-2 bands contain saturation
+    10 - 3-4 bands contain saturation
+    11 - 5 or more bands contain saturation
+    """
+    return _capture_bits(arr, 3, 2)
+
+
+def cloud(arr):
+    """
+    0 = No, this condition does not exist
+    1 = Yes, this condition exists
+    """
+    return _capture_bits(arr, 4, 4)
+
+
+def cloud_confidence(arr):
+    """
+    00 = "Not Determined" = Algorithm did not determine the status of this condition
+    01 = "No" = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
+    10 = "Maybe" = Algorithm has medium confidence that this condition exists (34-66 percent confidence)
+    11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence
+    """
+    return _capture_bits(arr, 6, 5)
+
+
+def cloud_shadow_confidence(arr):
+    """
+    00 = "Not Determined" = Algorithm did not determine the status of this condition
+    01 = "No" = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
+    10 = "Maybe" = Algorithm has medium confidence that this condition exists (34-66 percent confidence)
+    11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence
+    """
+    return _capture_bits(arr, 8, 7)
+
+
+def snow_ice_confidence(arr):
+    """
+    00 = "Not Determined" = Algorithm did not determine the status of this condition
+    01 = "No" = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
+    10 = "Maybe" = Algorithm has medium confidence that this condition exists (34-66 percent confidence)
+    11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence
+    """
+    return _capture_bits(arr, 10, 9)
+
+
+def cirrus_confidence(arr):
+    """
+    00 = "Not Determined" = Algorithm did not determine the status of this condition
+    01 = "No" = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
+    10 = "Maybe" = Algorithm has medium confidence that this condition exists (34-66 percent confidence)
+    11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence
+    """
+    return _capture_bits(arr, 12, 11)
+
+
 qa_vars = {
-    'clouds': cloud_qa,
-    'cirrus': cirrus_qa,
-    'cloudShadow': cloud_shadow_qa,
-    'water': water_qa,
-    'snowIce': snow_ice_qa,
+    'fill': fill_qa,
     'terrain': terrain_qa,
-    'droppedFrame': dropped_frame_qa,
-    'fill': fill_qa
+    'radiometricSaturation': radiometric_qa,
+    'cloud': cloud,
+    'cloudConf': cloud_confidence,
+    'cirrusConf': cirrus_confidence,
+    'cloudShadowConf': cloud_shadow_confidence,
+    'snowIceConf': snow_ice_confidence,
 }
 
 
-binary_vars = ('terrain', 'droppedFrame', 'fill')
+binary_vars = ('terrain', 'cloud', 'fill')
+
 
 def lookup(name, val):
     if name in binary_vars:
         if val == 0:
             return "no"
-        else:
-            return "yes"
+        return "yes"
     else:
         if val == 0:
             return "notDetermined"
@@ -84,15 +133,15 @@ def write_cloud_mask(arr, profile, cloudmask, threshold=2):
     suitable for stacking as an alpha band
     threshold defaults to 2; only 2 and above are considered clouds
     """
-    func = qa_vars['clouds']
+    func = qa_vars['cloud']
     data = func(arr)
     profile.update(dtype='uint8')
     profile.update(transform=guard_transform(profile['transform']))
     with rasterio.open(cloudmask, 'w', **profile) as dest:
-        clouds = (data >= threshold)
-        nodata = (data == 0)
-        yesdata = ((clouds + nodata) == 0)
-        data = (yesdata * 255).astype('uint8')
+        # clouds = (data >= threshold)
+        # nodata = (data == 0)
+        # yesdata = ((clouds + nodata) == 0)
+        data = (data * 255).astype('uint8')
         dest.write(data, 1)
 
 

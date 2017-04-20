@@ -3,7 +3,44 @@ Landsat 8 QA band CLI tool and python lib
 
 ## Background
 
-The QA Band for the Landsat 8 Level 1 product packs ten spatial variables into a single 16bit GeoTiff band. See section 5.4 of the [L8 Users Handbook](http://landsat.usgs.gov/documents/Landsat8DataUsersHandbook.pdf):
+The QA Band for the Landsat 8 product packs multiple spatial variables into a single 16bit GeoTiff band. There are two formats we need to handle:
+
+### Collection 1 productions
+
+This module support the LC08 collection 1 QA band format described here: https://landsat.usgs.gov/collectionqualityband
+
+    <img width="586" src="img/collection1-bit.jpg">
+
+For the single bits (0, 1, and 4):
+
+```
+0 = No, this condition does not exist
+1 = Yes, this condition exists
+```
+
+For radiometric saturation bits (2-3), read from left to right, represent how many bands contain saturation:
+
+```
+00 - No bands contain saturation
+01 - 1-2 bands contain saturation
+10 - 3-4 bands contain saturation
+11 - 5 or more bands contain saturation
+```
+
+For the remaining double bits (5-6, 7-8, 9-10, 11-12), read from left to right, represent levels of confidence that a condition exists:
+
+```
+00 = “Not Determined” = Algorithm did not determine the status of this condition
+01 = “No” = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
+10 = “Maybe” = Algorithm has medium confidence that this condition exists (34-66 percent confidence)
+11 = “Yes” = Algorithm has high confidence that this condition exists (67-100 percent confidence
+```
+
+### L8 level 1 products
+
+**WARNING** this legacy format is deprecated and only available through the `qa_L8.py` module. These won't currently work with the command line interface.
+
+See section 5.4 of the [L8 Users Handbook](http://landsat.usgs.gov/documents/Landsat8DataUsersHandbook.pdf):
 
 <img width="586" alt="screen shot 2015-11-09 at 9 07 20 am" src="https://cloud.githubusercontent.com/assets/1151287/11034401/b46bdf94-86c1-11e5-9df2-f39627f5373b.png">
 
@@ -20,6 +57,7 @@ The two-bit versions allow for a bit more subtlety:
  10 = "Maybe" = Algorithm has medium confidence that this condition exists (34- 66 percent confidence)
  11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence).
 ```
+
 
 ## Installation
 
