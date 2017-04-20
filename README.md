@@ -9,7 +9,7 @@ The QA Band for the Landsat 8 product packs multiple spatial variables into a si
 
 This module support the LC08 collection 1 QA band format described here: https://landsat.usgs.gov/collectionqualityband
 
-    <img width="586" src="img/collection1-bit.jpg">
+<img width="586" src="img/collection1-bit.jpg">
 
 For the single bits (0, 1, and 4):
 
