@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 
 # Parse the version from the fiona module.
-with open('landsat8_qa/__init__.py') as f:
+with open('l8qa/__init__.py') as f:
     for line in f:
         if line.find("__version__") >= 0:
             version = line.split("=")[1].strip()
@@ -16,25 +16,25 @@ with codecs_open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 
-setup(name='landsat8-qa',
+setup(name='rio-l8qa',
       version=version,
-      description=u"Landsat 8 QA band analysis",
+      description=u"CLI and python module for working with Landsat 8 QA band",
       long_description=long_description,
       author=u"Matthew Perry",
       author_email='perry@mapbox.com',
-      url='https://github.com/mapbox/landsat8-qa',
+      url='https://github.com/mapbox/rio-l8qa',
       license='BSD',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
       include_package_data=True,
       zip_safe=False,
       install_requires=[
           'click',
-          'rasterio>=0.23'
+          'rasterio>=0.36'
       ],
       extras_require={
           'test': ['coveralls', 'pytest', 'pytest-cov'],
       },
       entry_points="""
       [rasterio.rio_plugins]
-      l8qa=landsat8_qa.cli:main
+      l8qa=l8qa.cli:main
       """)
