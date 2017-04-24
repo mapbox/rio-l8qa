@@ -1,49 +1,54 @@
 import pytest
 import rasterio
 
+from l8qa.qa import summary_stats
+
 
 @pytest.fixture
 def qaarr():
-    with rasterio.open("tests/LC81070352015282LGN00_BQA.TIF") as src:
+    with rasterio.open("tests/LC08_L1TP_005004_20170410_20170414_01_T1_BQA.TIF") as src:
         arr = src.read(1)
     return arr
 
+
 expected = {
-    "droppedFrame": {
-        "no": 1.0
-    },
-    "clouds": {
-        "maybe": 0.003105,
-        "yes": 0.013599,
-        "notDetermined": 0.335058,
-        "no": 0.648238
-    },
     "terrain": {
         "no": 1.0
     },
-    "water": {
-        "maybe": 0.414231,
-        "notDetermined": 0.585769
+    "cloud": {
+        "no": 0.999995,
+        "yes": 5e-06
     },
-    "cloudShadow": {
+    "snowIceConf": {
+        "notDetermined": 0.513239,
+        "no": 0.005215,
+        "yes": 0.481546
+    },
+    "cloudConf": {
+        "notDetermined": 0.513239,
+        "maybe": 0.000119,
+        "no": 0.486637,
+        "yes": 5e-06
+    },
+    "radiometricSaturation": {
         "notDetermined": 1.0
     },
-    "snowIce": {
-        "yes": 0.000358,
-        "notDetermined": 0.999642
-    },
-    "cirrus": {
-        "yes": 1.6e-05,
-        "notDetermined": 0.335058,
-        "no": 0.664927
-    },
     "fill": {
-        "yes": 0.335058,
-        "no": 0.664942
+        "no": 0.486761,
+        "yes": 0.513239
+    },
+    "cloudShadowConf": {
+        "notDetermined": 0.513239,
+        "no": 0.486757,
+        "yes": 5e-06
+    },
+    "cirrusConf": {
+        "notDetermined": 0.513239,
+        "no": 0.486161,
+        "yes": 0.000601
     }
 }
 
 
 def test_summary(qaarr):
-    from landsat8_qa.qa import summary_stats
     assert summary_stats(qaarr) == expected

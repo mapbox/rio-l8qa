@@ -1,107 +1,82 @@
-# landsat8-qa
-Landsat 8 QA band CLI tool and python lib
+# rio-l8qa
 
-## Background
+Landsat 8 QA band CLI tool and python module
 
-The QA Band for the Landsat 8 product packs multiple spatial variables into a single 16bit GeoTiff band. There are two formats we need to handle:
+## Install
 
-### Collection 1 productions
-
-This module support the LC08 collection 1 QA band format described here: https://landsat.usgs.gov/collectionqualityband
-
-<img width="886" src="img/collection1-bit.jpg">
-
-
-### L8 level 1 products
-
-**WARNING** this legacy format is deprecated and only available through the `qa_L8.py` module. These won't currently work with the command line interface.
-
-See section 5.4 of the [L8 Users Handbook](http://landsat.usgs.gov/documents/Landsat8DataUsersHandbook.pdf):
-
-<img width="586" alt="screen shot 2015-11-09 at 9 07 20 am" src="https://cloud.githubusercontent.com/assets/1151287/11034401/b46bdf94-86c1-11e5-9df2-f39627f5373b.png">
-
-The single-bit variables are simple binary variables
 ```
-0 = no
-1 = yes
-```
-
-The two-bit versions allow for a bit more subtlety:
-```
- 00 = "Not Determined" = For Cloud or Cirrus, the algorithm did not run. For the other confidence classifications this is a "No"; the Algorithm has no confidence that this condition exists.
- 01 = "No" = Algorithm has low to no confidence that this condition exists (0-33 percent confidence)
- 10 = "Maybe" = Algorithm has medium confidence that this condition exists (34- 66 percent confidence)
- 11 = "Yes" = Algorithm has high confidence that this condition exists (67-100 percent confidence).
+$ pip install rio-l8qa
 ```
 
 
-## Installation
+## Python Usage
 
-No release yet, install from master
+The `l8qa` module provides both `qa` (for Landsat Collection 1 data) and `qa_pre` (for pre-Collection landsat data). Both provide a number of functions to extract integer data from the respective QA band formats.
+
+* cirrus_confidence
+* cloud
+* cloud_confidence
+* cloud_shadow_confidence
+* fill_qa
+* lookup
+* radiometric_qa
+* snow_ice_confidence
+* terrain_qa
+
+ And some additional utilty functions to calculate stats or write cloud masks.
+
+* summary_stats
+* write_cloud_mask
+
+#### Example
 
 ```
-pip install git+https://github.com/mapbox/landsat8-qa.git@master#egg=landsat8-qa
+from l8qa.qa import cloud_confidence
+import rasterio
+
+qatif = "LC08_L1TP_005004_20170410_20170414_01_T1_BQA.TIF"
+
+with rasterio.open(qatif) as src:
+    yesclouds = cloud_confidence(src.read(1)) == 3  # high confidence
 ```
 
-## Command Line Interface
+## Command Line Usage
 
-Get summary stats, representing proportion of the scene
+*The command line interface currently works only with new Landsat collections format. See `docs/collections.md` for details.*
+
+Summary statistics for each of the QA metrics
+
 ```
-$ rio l8qa --stats LC81100752015319LGN00_BQA.TIF
+$ rio l8qa LC08_L1TP_005004_20170410_20170414_01_T1_BQA.TIF \
+    --stats
 {
-  "clouds": {
-    "maybe": 0.00238,
-    "notDetermined": 0.295914,
-    "yes": 0.174949,
-    "no": 0.526757
+  "cloudConf": {
+    "maybe": 0.000119,
+    "yes": 5e-06,
+    "no": 0.486637,
+    "notDetermined": 0.513239
   },
-  "snowIce": {
-    "notDetermined": 1.0,
-    "yes": 0.0
-  },
-  "cloudShadow": {
-    "notDetermined": 1.0
-  },
-  "terrain": {
-    "no": 1.0
-  },
-  "water": {
-    "maybe": 8.2e-05,
-    "notDetermined": 0.999918
-  },
-  "droppedFrame": {
-    "no": 1.0
-  },
-  "cirrus": {
-    "notDetermined": 0.295914,
-    "yes": 0.245638,
-    "no": 0.458448
-  },
-  "fill": {
-    "yes": 0.295914,
-    "no": 0.704086
-  }
+  ...
 }
 ```
 
-Optionally, you can also output tifs for each QA topic to a directory
+To generate output tifs for each QA metric to a directory
 ```
-$ rio l8qa --outdir /tmp/qa LC81100752015319LGN00_BQA.TIF
-...
-QA variables written as uint8 tifs to /tmp/l8qa
-
-$ ls /tmp/l8qa
-LC81100752015319LGN00_cirrus.TIF
-LC81100752015319LGN00_cloud_shadow.TIF
-LC81100752015319LGN00_clouds.TIF
-LC81100752015319LGN00_dropped_frame.TIF
-LC81100752015319LGN00_fill.TIF
-LC81100752015319LGN00_snow_ice.TIF
-LC81100752015319LGN00_terrain.TIF
-LC81100752015319LGN00_water.TIF
+$ rio l8qa LC08_L1TP_005004_20170410_20170414_01_T1_BQA.TIF \
+    --outdir /tmp
+$ ls /tmp
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_cirrusConf.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_cloud.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_cloudConf.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_cloudShadowConf.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_fill.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_radiometricSaturation.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_snowIceConf.TIF
+/tmp/LC08_L1TP_005004_20170410_20170414_01_T1_terrain.TIF
 ```
 
-Or just a uint8 0-255 cloud mask, suitable for use as an alpha band in an RGBA geotif
+If you need a uint8 0-255 cloud mask, suitable for use as an alpha band in an RGBA geotif, there is a shortcut
 ```
-$ rio l8qa --cloudmask clouds_plus_mask.tif LC81100752015319LGN00_BQA.TIF
+$ rio l8qa LC08_L1TP_005004_20170410_20170414_01_T1_BQA.TIF \
+    --cloudmask /tmp/justclouds.tif
 ```
