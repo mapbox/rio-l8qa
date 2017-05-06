@@ -2,6 +2,11 @@ from codecs import open as codecs_open
 from setuptools import setup, find_packages
 
 
+long_description = """CLI and python module for working with Landsat 8 QA band
+
+https://github.com/mapbox/rio-l8qa"""
+
+
 # Parse the version from the fiona module.
 with open('l8qa/__init__.py') as f:
     for line in f:
@@ -10,10 +15,6 @@ with open('l8qa/__init__.py') as f:
             version = version.strip('"')
             version = version.strip("'")
             break
-
-# Get the long description from the relevant file
-with codecs_open('README.md', encoding='utf-8') as f:
-    long_description = f.read()
 
 
 setup(name='rio-l8qa',
