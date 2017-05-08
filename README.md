@@ -1,5 +1,7 @@
 # rio-l8qa
 
+[![Build Status](https://travis-ci.org/mapbox/rio-l8qa.svg?branch=master)](https://travis-ci.org/mapbox/rio-l8qa)
+
 Landsat 8 QA band CLI tool and python module
 
 ## Install
