@@ -27,9 +27,9 @@ install:
   - "pip install --use-wheel numpy"
   - "pip wheel -r requirements.txt"
   - "pip install --use-wheel -r requirements.txt"
-  - "pip install -e ."
+  - "pip install -e .[test]"
 script:
-  - py.test --cov l8qa --cov-report term-missing
+  - py.test --cov l8qa --cov-report term-missing tests
 after_success:
   - coveralls
 
